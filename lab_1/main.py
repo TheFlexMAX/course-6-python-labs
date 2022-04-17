@@ -1,39 +1,40 @@
-import math
+import requests
+
+city = "Odessa,UA"
+appid = "85d1a7314de3ff7329f385dbdfb3c27f"
 
 
-def max_triangle_square():
-    sides = [3, 2, 4, 7, 5, 12, 11, 13, 15, 16, 14, 14]
-    sides = sorted(sides, reverse=True)
-    smax = 0
-    for i in range(len(sides)):
-        a = sides[i]
-        for j in range(i + 1, len(sides)):
-            b = sides[j]
-            for k in range(j + 1, len(sides)):
-                c = sides[k]
-                if a + b > c and a + c > b and b + c > a:
-                    p = (a + b + c) / 2
-                s = (p * (p - a) * (p - b) * (p - c)) ** (1 / 2)
-                if s > smax:
-                    smax = s
-    print("Максимальная площадь треугольника", smax)
+def weekly_weather():
+    res = requests.get("http://api.openweathermap.org/data/2.5/forecast",
+                       params={'q': city, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+    data = res.json()
+    print("Прогноз погоды на неделю:")
+    for i in data['list']:
+        print("Дата <", i['dt_txt'], "> \r\nТемпература <", '{0:+3.0f}'.format(i['main']['temp']),
+              "> \r\nПогодные условия <", i['weather'][0]['description'], ">", f"\r\nВидимость <{i['visibility']}>",
+              f"\r\nСкорость ветра < {i['wind']['speed']} >")
+
+        print("____________________________")
+
+
+def today_weather():
+    res = requests.get("http://api.openweathermap.org/data/2.5/weather",
+                       params={'q': city, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+    data = res.json()
+
+    print("Город:", city)
+    print("Погодные условия:", data['weather'][0]['description'])
+    print("Температура:", data['main']['temp'])
+    print("Минимальная температура:", data['main']['temp_min'])
+    print("Максимальная температура", data['main']['temp_max'])
+    print("Видимость", data['visibility'])
+    print("Скорость ветра", data['wind']['speed'])
 
 
 def main():
-    print('Квадратное неравенство. Введите 3 числа через пробелы')
-    a, b, c = map(int, input().split(' '))
-    d = b ** 2 - 4 * a * c
-    if d > 0:
-        x1 = (-b + math.sqrt(d)) / (2 * a)
-        x2 = (-b - math.sqrt(d)) / (2 * a)
-        print(f'x1: {x1}\nx2: {x2}')
-    elif d == 0:
-        x1 = (-b + math.sqrt(d)) / (2 * a)
-        print(f'x1: {x1}')
-    else:
-        print('Корней нет')
+    # today_weather()
+    weekly_weather()
 
 
 if __name__ == '__main__':
-    max_triangle_square()
     main()
